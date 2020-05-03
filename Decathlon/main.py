@@ -3,6 +3,8 @@ from games.meters_400 import *
 from games.meters_1500 import *
 from games.shot_put import *
 from games.discus import *
+from games.meters_100_hurdles import *
+from games.javelin import *
 
 
 class InitiateGameFrame(Frame):
@@ -15,8 +17,8 @@ class InitiateGameFrame(Frame):
         self.name = name
         self.master = master
 
-        Label(self, text='Which game would you like to play, ' + self.name + '?', font=('Arial', 18)).grid(columnspan=3,
-                                                                                                           sticky=W)
+        Label(self, text='Which game would you like to play, ' + self.name + '?', font=('Arial', 18)).grid(
+            columnspan=3, sticky=W)
         Button(self, text='>>Play decathlon 100!<<', command=self.initiate_game1, font=('Comic Sans MS', 18)).grid(
             columnspan=3, sticky=N)
         Button(self, text='>>Play decathlon 400!<<', command=self.initiate_game2, font=('Comic Sans MS', 18)).grid(
@@ -26,6 +28,10 @@ class InitiateGameFrame(Frame):
         Button(self, text='    >>Play shot put!<<    ', command=self.initiate_game4, font=('Comic Sans MS', 18)).grid(
             columnspan=3, sticky=N)
         Button(self, text='     >>Play Discus!<<     ', command=self.initiate_game5, font=('Comic Sans MS', 18)).grid(
+            columnspan=3, sticky=N)
+        Button(self, text='>>Play 100 meter hurdles!<<', command=self.initiate_game6, font=('Comic Sans MS', 18)).grid(
+            columnspan=3, sticky=N)
+        Button(self, text='>>Play javelin!<<', command=self.initiate_game7, font=('Comic Sans MS', 18)).grid(
             columnspan=3, sticky=N)
 
     def initiate_game1(self):
@@ -54,14 +60,28 @@ class InitiateGameFrame(Frame):
         Plays Decathlon shot put
         """
         self.destroy()
-        ShotPut(self.master, self.name)
+        DecathlonShotPut(self.master, self.name)
 
     def initiate_game5(self):
         """
         Plays Decathlon discus
         """
         self.destroy()
-        Discus(self.master, self.name)
+        DecathlonDiscus(self.master, self.name)
+
+    def initiate_game6(self):
+        """
+        Plays Decathlon 100 Meter hurdles
+        """
+        self.destroy()
+        Decathlon100MeterHurdles(self.master, self.name)
+
+    def initiate_game7(self):
+        """
+        Plays Decathlon javelin
+        """
+        self.destroy()
+        DecathlonJavelin(self.master, self.name)
 
 
 player_name = input('Please enter you name: ')

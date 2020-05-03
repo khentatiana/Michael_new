@@ -1,7 +1,7 @@
 from games.dice.GUI_die import *
 
 
-class ShotPut(Frame):
+class DecathlonShotPut(Frame):
     """Frame for the game shot put by Reiner Knizia"""
     def __init__(self, master, name):
         Frame.__init__(self, master)

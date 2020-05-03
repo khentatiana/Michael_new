@@ -66,3 +66,10 @@ class GUIFreezeDie(GUIDie):
     def roll(self):
         if not self.is_frozen():
             GUIDie.roll(self)
+
+    def clear(self):
+        if self.is_frozen():
+            self['bg'] = 'white'
+        GUIDie.clear(self)
+
+

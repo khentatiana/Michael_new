@@ -1,7 +1,7 @@
 from games.dice.GUI_die import *
 
 
-class Discus(Frame):
+class DecathlonDiscus(Frame):
     """
     Discus game frame from Decathlon dice games
     Discus() -> GUI game of discus
@@ -25,6 +25,7 @@ class Discus(Frame):
         self.score = 0
         self.high_score = 0
         self.attempt = 0
+        self.freezable_die_count = 0
 
         # creating dice
         self.dice = []
@@ -48,7 +49,27 @@ class Discus(Frame):
         self.bottom_text.grid(row=3, column=1, columnspan=3)
 
     def roll(self):
-        freezable_die_count = 0
+        val = 0
+        for i in range(5):
+            if self.dice[i].is_frozen():
+                val += 1
+
+        if val == 5:
+            self.roll_button['state'] = DISABLED
+            return
+
+        freeze = 0
+        self.bottom_text['text'] = 'Click Stop button to keep'
+        for i in range(5):
+            if self.dice[i].get_top() % 2 == 0:
+                if not self.dice[i].is_frozen():
+                    freeze += 1
+        if self.freezable_die_count == freeze and freeze != 0:
+            self.bottom_text['text'] = 'You must freeze a die to reroll'
+            return
+
+        self.freezable_die_count = 0
+
         self.stop_button['state'] = ACTIVE
         for freeze_button in range(5):
             self.freeze_buttons[freeze_button]['state'] = DISABLED
@@ -60,12 +81,14 @@ class Discus(Frame):
             if not self.dice[i].is_frozen():
                 if self.dice[i].get_top() % 2 == 0:
                     self.freeze_buttons[i]['state'] = ACTIVE
-                    freezable_die_count += 1
+                    self.freezable_die_count += 1
 
-        if freezable_die_count == 0:
+        if self.freezable_die_count == 0:
             self.stop_button['text'] = ' FOUL '
             self.roll_button['state'] = DISABLED
             self.score_label['text'] = 'FOULED ATTEMPT'
+            self.bottom_text['text'] = 'Click FOUL button to continue'
+            self.score = 0
         else:
             for i in range(5):
                 if self.dice[i].get_top() % 2 == 0:
@@ -73,8 +96,7 @@ class Discus(Frame):
                         self.score += 0
                     else:
                         self.score += self.dice[i].get_top()
-            self.score_label['text'] = 'Attempt #' + str(self.attempt) + ' Score: ' + str(self.score)
-
+            self.score_label['text'] = 'Attempt #' + str(self.attempt + 1) + ' Score: ' + str(self.score)
 
     def stop(self):
         for die in self.dice:
@@ -89,14 +111,15 @@ class Discus(Frame):
         self.score = 0
         self.attempt += 1
 
-        if self.attempt < 2:
+        if self.attempt < 3:
             self.roll_button['state'] = ACTIVE
             self.stop_button['state'] = DISABLED
             self.stop_button['text'] = ' Stop '
             self.bottom_text['text'] = 'Click Roll button to start'
+            self.score_label['text'] = 'Attempt #' + str(self.attempt + 1) + ' Score: ' + str(self.score)
+            self.high_score_label['text'] = 'High Score: ' + str(self.high_score)
         else:
             self.score_label['text'] = 'Game Over'
-            self.roll_button.destroy()
-            self.stop_button.destroy()
-            self.bottom_text.destroy()
-
+            self.roll_button.grid_remove()
+            self.stop_button.grid_remove()
+            self.bottom_text.grid_remove()
