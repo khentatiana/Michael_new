@@ -1,5 +1,4 @@
-from games.dice.GUI_dice import GUIDie
-from tkinter import *
+from games.dice.GUI_die import *
 
 
 class Decathlon1500Meters(Frame):
@@ -7,6 +6,9 @@ class Decathlon1500Meters(Frame):
         Frame.__init__(self, master)
         self.grid()
         self.name = player_name
+        self.master = master
+        master.title('1500 meters')
+
         Label(self, text=self.name, font=('Arial', 18)).grid(columnspan=3, sticky=W)
 
         # labels for score messages
@@ -22,7 +24,7 @@ class Decathlon1500Meters(Frame):
 
         # creating dice
         self.dice = []
-        for n in range(8):
+        for n in range(4):
             self.dice.append(GUIDie(self, [1, 2, 3, 4, 5, -6], ['black'] * 5 + ['red']))
             self.dice[n].grid(row=1, column=n)
 

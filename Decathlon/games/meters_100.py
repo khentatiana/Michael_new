@@ -1,5 +1,4 @@
-from games.dice.GUI_dice import GUIDie
-from tkinter import *
+from games.dice.GUI_die import *
 
 
 class Decathlon100Meters(Frame):
@@ -7,6 +6,7 @@ class Decathlon100Meters(Frame):
         Frame.__init__(self, master)
         self.grid()
         self.name = player_name
+        master.title('100 meters')
         Label(self, text=self.name, font=('Arial', 18)).grid(columnspan=3, sticky=W)
 
         # labels for score messages

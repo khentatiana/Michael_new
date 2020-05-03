@@ -1,11 +1,12 @@
-from games.dice.GUI_dice import GUIDie
-from tkinter import *
+from games.dice.GUI_die import *
 
 
 class Decathlon400Meters(Frame):
     def __init__(self, master, player_name):
         Frame.__init__(self, master)
         self.grid()
+        master.title('400 meters')
+
         self.name = player_name
         Label(self, text=self.name, font=('Arial', 18)).grid(columnspan=3, sticky=W)
 

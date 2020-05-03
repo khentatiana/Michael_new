@@ -47,3 +47,22 @@ class GUIDie(Canvas):
     def draw_pip(self, location, color):
         (center_x, center_y) = (15 + 20 * location[0], 15 + 20 * location[1])
         self.create_oval(center_x - 5, center_y - 5, center_x + 5, center_y + 5, fill=color)
+
+
+class GUIFreezeDie(GUIDie):
+    def __init__(self, master, value_list=[i for i in range(1, 7)], color_list=['black'] * 6):
+        """
+        GUIFreezeDie(master, values_list, color_list)
+        We inherit a GUIDie giving us the ability to initiate it with our new values
+        """
+        GUIDie.__init__(self, master, value_list, color_list)
+
+    def is_frozen(self):
+        return self['bg'] == 'gray'
+
+    def toggle_freeze(self):
+        self['bg'] = 'gray'
+
+    def roll(self):
+        if not self.is_frozen():
+            GUIDie.roll(self)
