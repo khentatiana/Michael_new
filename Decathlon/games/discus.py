@@ -26,6 +26,7 @@ class DecathlonDiscus(Frame):
         self.high_score = 0
         self.attempt = 0
         self.freezable_die_count = 0
+        self.last_attempt = 0
 
         # creating dice
         self.dice = []
@@ -64,9 +65,11 @@ class DecathlonDiscus(Frame):
             if self.dice[i].get_top() % 2 == 0:
                 if not self.dice[i].is_frozen():
                     freeze += 1
-        if self.freezable_die_count == freeze and freeze != 0:
+        if self.freezable_die_count == freeze and freeze != 0 and self.last_attempt == self.attempt:
             self.bottom_text['text'] = 'You must freeze a die to reroll'
             return
+        else:
+            self.last_attempt = self.attempt
 
         self.freezable_die_count = 0
 

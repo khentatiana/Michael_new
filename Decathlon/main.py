@@ -20,19 +20,19 @@ class InitiateGameFrame(Frame):
         Label(self, text='Which game would you like to play, ' + self.name + '?', font=('Arial', 18)).grid(
             columnspan=3, sticky=W)
         Button(self, text='>>Play decathlon 100!<<', command=self.initiate_game1, font=('Comic Sans MS', 18)).grid(
-            columnspan=3, sticky=N)
+            columnspan=3, sticky=W)
         Button(self, text='>>Play decathlon 400!<<', command=self.initiate_game2, font=('Comic Sans MS', 18)).grid(
-            columnspan=3, sticky=N)
+            columnspan=3, sticky=W)
         Button(self, text='>>Play decathlon 1500!<<', command=self.initiate_game3, font=('Comic Sans MS', 17)).grid(
-            columnspan=3, sticky=N)
-        Button(self, text='    >>Play shot put!<<    ', command=self.initiate_game4, font=('Comic Sans MS', 18)).grid(
-            columnspan=3, sticky=N)
-        Button(self, text='     >>Play Discus!<<     ', command=self.initiate_game5, font=('Comic Sans MS', 18)).grid(
-            columnspan=3, sticky=N)
+            columnspan=3, sticky=W)
+        Button(self, text='>>Play shot put!<<', command=self.initiate_game4, font=('Comic Sans MS', 18)).grid(
+            columnspan=3, sticky=W)
+        Button(self, text='>>Play Discus!<<', command=self.initiate_game5, font=('Comic Sans MS', 18)).grid(
+            columnspan=3, sticky=W)
         Button(self, text='>>Play 100 meter hurdles!<<', command=self.initiate_game6, font=('Comic Sans MS', 18)).grid(
-            columnspan=3, sticky=N)
+            columnspan=3, sticky=W)
         Button(self, text='>>Play javelin!<<', command=self.initiate_game7, font=('Comic Sans MS', 18)).grid(
-            columnspan=3, sticky=N)
+            columnspan=3, sticky=W)
 
     def initiate_game1(self):
         """

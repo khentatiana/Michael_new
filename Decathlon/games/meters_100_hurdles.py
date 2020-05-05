@@ -47,6 +47,6 @@ class Decathlon100MeterHurdles(Frame):
 
             self.score_label['text'] = 'Score: ' + str(self.score)
             self.rethrows -= 1
+            if self.rethrows == 0:
+                self.roll_button['state'] = DISABLED
             self.rethrow_label['text'] = 'Rethrows: ' + str(self.rethrows)
-        else:
-            self.roll_button['state'] = DISABLED
