@@ -1,5 +1,5 @@
 import random
-
+import sys
 
 def make_choice(x, y, field):
     width = len(field)
@@ -44,8 +44,27 @@ def make_choice(x, y, field):
 
         return random.choice(tanks_to_shoot)
     else:
-        return 'go_up'
+        search(field, [x, y])
 
+
+def search(array, loc):
+    # we create a cushion in-case we are on the border
+    array.insert(['#'] * (2 + len(array[0])), 0)
+    array.append(['#'] * (2 + len(array[0])))
+
+    for i in range(len(array) - 2):
+        array[i + 1].insert('#', 0)
+        array[i + 1].append('#')
+
+    # we search possible sectors
+    possible = []
+    possible_coins = []
+
+    if array[loc[0], loc[1] + 1] in [0, 1]:
+        if array[loc[0], loc[1] + 1] == 1:
+            possible_coins.append('go_left')
+        else:
+            possible.append()
 
 if __name__ == "__main__":
     T = {"life": 10}
