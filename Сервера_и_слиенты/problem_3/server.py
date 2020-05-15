@@ -1,29 +1,32 @@
 import socket
+from Сервера_и_слиенты.problem_3.go_to_network import *
 
 sock = socket.socket()
 
-sock.bind(('', 9091))
+sock.bind(('', 9090))
 
 sock.listen(1)
 
-conn, addr = sock.accept()
-name = input('Ведите ваше имя: ')
-conn.send(name.encode('utf-8'))
-name_2 = conn.recv(1024).decode('utf-8')
-
+print('Server listening....')
 
 while True:
-    message = input(name + ': ')
+    conn, addr = sock.accept()
+    name = receive_string(conn)
+    print('Got connection from', addr)
 
-    if message == 'end':
-        conn.send('end'.encode('utf-8'))
-        sock.close()
+    while True:
+        file_name = receive_string(conn)
+        if file_name == 'end':
+            break
 
-    conn.send(message.encode('utf-8'))
+        file = receive_data(conn).decode('utf-8')
 
-    client_data = conn.recv(1024)
-    client_string = client_data.decode('utf-8')
-    print(name_2 + ': ' + client_string)
+        if file_name:
+            print('Фаил получен от ' + name + '.')
 
-    if client_string == 'end':
-        sock.close()
+            new_file = open('new_' + file_name, 'w')
+            new_file.write(file)
+            new_file.close()
+
+    print('Disconnected', addr)
+    conn.close()

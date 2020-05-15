@@ -1,28 +1,24 @@
 import socket
-
+from Сервера_и_слиенты.problem_3.go_to_network import *
 
 sock = socket.socket()
-
-sock.connect(('192.168.1.92', 9091))
-
-server_name = sock.recv(1024).decode('utf-8')
-
-name = input('Ведите ваше имя: ')
-sock.send(name.encode('utf-8'))
+sock.connect(('127.0.0.1', 9090))
+send_string(sock, input('Введите ваше имя: '))
 
 while True:
-    server_data = sock.recv(1024)
-    server_string = server_data.decode('utf-8')
+    filename = input("Введите имя фаила: ")
+    if filename == 'end':
+        send_string(sock, 'end')
+        break
+    try:
+        with open("file_folders/" + filename, "rb") as file:
+            data = file.read()
+            send_string(sock, filename)
+            send_data(sock, data)
+            print("Фаил отправлен!")
+    except FileNotFoundError:
+        print("Фаил не найден.")
+    except:
+        print("Ошибка со стороона сервера.")
 
-    print(server_name + ': ' + server_string)
-
-    if server_string == 'end':
-        sock.close()
-
-    message = input(name + ': ')
-
-    if message == 'end':
-        sock.send('end'.encode('utf-8'))
-        sock.close()
-
-    sock.send(message.encode('utf-8'))
+sock.close()

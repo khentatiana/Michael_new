@@ -1,5 +1,6 @@
 # we need three classes SudokuCell, SudokuBoard, and 3x3 square
 from tkinter import *
+from tkinter import filedialog
 
 
 class SudokuCell(Label):
@@ -243,8 +244,48 @@ class SudokuGrid(Frame):
             if not cell.is_read_only():
                 cell.set_number(0)
 
+    def valid(self, loc, num):
+        for i in range(9):
+            if self.cells[(loc[0], i)].number == num and loc[1] != i:
+                return False
+
+            # Check column
+        for i in range(9):
+            if self.cells[(i, loc[1])].number == num and loc[0] != i:
+                return False
+
+            # Check box
+        box_x = loc[1] // 3
+        box_y = loc[0] // 3
+
+        for i in range(box_y * 3, box_y * 3 + 3):
+            for j in range(box_x * 3, box_x * 3 + 3):
+                if self.cells[(i, j)].number == num and (i, j) != loc:
+                    return False
+
+        return True
+
     def solve(self):
-        pass
+        find = None
+        for row in range(9):
+            for col in range(9):
+                if self.cells[(row, col)].number == 0:
+                    find = (row, col)
+
+        if not find:
+            return True
+
+        for digit in range(1, 10):
+            if self.valid(find, digit):
+                self.cells[find].number = digit
+
+                if self.solve():
+                    self.update_cells()
+                    return True
+
+                self.cells[find].number = 0
+
+        return False
 
 
 def sudoku():
@@ -252,7 +293,7 @@ def sudoku():
     plays sudoku"""
     root = Tk()
     root.title('Sudoku')
-    sg = SudokuGrid(root)
+    SudokuGrid(root)
     root.mainloop()
 
 

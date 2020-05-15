@@ -1,62 +1,41 @@
 from Сервера_и_слиенты.problem_multiple.go_to_network import *
 import threading
-import time
-import json
 
 
-name = input('Ведите ваше имя: ')
-client = Client('176.119.157.148', 9090, name)
+def receive_broadcast(server):
+    while True:
+        message = receive_string(server)
 
+        if message:
+            if message[-5:] == '!file':
+                receive_file(server)
+            else:
+                print(message)
+
+
+name = input('Введите ваше имя: ')
+client = Client('127.0.0.1', 9090, name)
 connection = client.connection
-connection.send(name)
-print("connected")
 
-
-def receive_broadcast(self):
-    try:
-        while True:
-            m = self.receive_string()
-            if m:
-                if m[-5:] == 'фаил.':
-                    new_file = open('received_file', 'w')
-                    file_sent = receive_data(connection)
-                    for l in file_sent:
-                        new_file.write(l.decode('utf-8'))
-                print(m)
-            time.sleep(0.1)
-    except:
-        pass
-
+threading.Thread(target=receive_broadcast, args=[connection])
 
 while True:
-    thread = threading.Thread(target=receive_broadcast, args=[connection]).start()
-
-    message = input('Вы: ')
-    if message == '!help':
-        print('    1) !bye -> отключиться от чата.')
-        print('    2) !message -> написать кому-то в личные сообшение')
-        print('    3) !file -> послать фаил всем в чате.')
-        print('    4) !help -> показывает все команды.')
-
-    elif message == '!bye':
-        send_data(connection, '!bye')
+    message = input()
+    if message == '!bye':
+        send_string(connection, message)
         break
+    if message == '!file':
+        send_string(connection, message)
+        filename = input('Введите имя фаила: ')
 
-    elif message == '!file':
-        file_name, file_type = input('Ведите имя фаила и раширения фаила: ').split('.' or ',' or ' ')
-        my_file = file_name + '.' + file_type
-        try:
-            with open(my_file, "rb") as file:
-                data = file.read()
-                send_string(connection, '!file: ' + my_file)
-                send_data(connection, data)
-        except FileNotFoundError:
-            print("File not found")
-        except:
-            print("Network error")
+        send_file(connection, filename)
+    if message == '!message':
+        print('Имя user который вы бы хотели послать личное сообшение: ')
+        person = input()
+        print('Сообшение: ')
+        message = input()
 
-    else:
+        send_string(connection, person)
         send_string(connection, message)
 
 connection.close()
-print("end")

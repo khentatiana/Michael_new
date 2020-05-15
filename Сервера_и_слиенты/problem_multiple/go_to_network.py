@@ -12,8 +12,8 @@ class Connection:
         if self.connection:
             if type(data) == str:
                 send_string(self.connection, data)
-            # else:
-            #     send_data(self.connection, data)
+            else:
+                send_data(self.connection, data)
 
     def receive_string(self):
         if self.connection:
@@ -57,14 +57,40 @@ def send_data(sock, data):
 
 def receive_data(sock):
     size_bytes = sock.recv(4)
-    if not size_bytes:
-        return b''
     size = struct.unpack('>I', size_bytes)[0]
+    data = sock.recv(size)
 
-    data = b''
-    while len(data) != size:
-        data += sock.recv(size)
     return data
+
+
+def send_file(sock, filename):
+    try:
+        with open("file_folders/" + filename, "rb") as file:
+            data = file.read()
+            send_string(sock, filename)
+            send_data(sock, data)
+            print("Фаил отправлен!")
+    except FileNotFoundError:
+        print("Фаил не найден.")
+    except:
+        print("Ошибка со стороона сервера.")
+
+
+def receive_file(sock):
+    file_name = receive_string(sock)
+    file = receive_data(sock).decode('utf-8')
+
+    print('Фаил получен от ' + sock.name + '.')
+
+    y_n = '#'
+    while y_n.lower() not in ['д', 'н', 'да', 'нет']:
+        print('Хотите ли вы принять ' + file_name + ' от ' + sock.name + '? ', end='')
+        y_n = input()
+
+    if y_n.lower() in ['д', 'да']:
+        new_file = open('new_' + file_name, 'w')
+        new_file.write(file)
+        new_file.close()
 
 
 def send_string(sock, s):

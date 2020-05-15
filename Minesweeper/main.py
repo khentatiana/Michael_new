@@ -25,14 +25,13 @@ class Tile(Label):
         return self.loc[0], self.loc[1]
 
     def expose(self, event=None):
-        global array, process
+        global array
         if self.top_num == 0:
             self['text'] = ''
             self['relief'] = SUNKEN
             self['bg'] = 'gray'
             x, y = self.location()
-            if not process:
-                auto_click(x, y, array)
+
         else:
             if self.top_num == -1:
                 self['text'] = '*'
@@ -61,80 +60,55 @@ class Tile(Label):
 
 class GameBoard(Frame):
     def __init__(self, master, x, y, num_bombs):
-        global array
         Frame.__init__(self, master)
         self.grid()
-
+        self.x = x
+        self.y = y
         self.array = []
-        for i in range(y):
+        for i in range(x):
             val = []
-            for j in range(x):
-                val.append(Tile(master, 0, (j, i)))
-                val[j].grid(row=j, column=i)
+            for j in range(y):
+                val.append(Tile(master, 0, [i, j]))
             self.array.append(val)
 
-        self.visited_points = []
-
-        self.bomb_positions = []
-        for i in range(num_bombs):
-            rx = random.randrange(0, x)
-            ry = random.randrange(0, y)
-
-            if (rx, ry) not in self.bomb_positions:
-                self.bomb_positions.append((rx, ry))
-                # we set it up as a bomb
-                self.array[ry][rx].top_num = -1
+        # generating mines
+        global positions
+        positions = []
+        for bomb in range(num_bombs):
+            tx = random.randint(0, x)
+            ty = random.randint(0, y)
+            if (tx, ty) in positions:
+                bomb -= 1
             else:
-                i -= 1
+                # we mark it a a bomb
+                self.array[ty][tx].top_num = -1
+                positions.append((tx, ty))
 
-        for i in range(y):
-            for j in range(x):
-                self.array[i][j].top_num = self.search_nearby(j, i, self.array)
-        array = self.array
+        for ty in range(y):
+            for tx in range(x):
+                self.array[ty][tx].top_num = self.check_around(tx, ty)
 
-    def search_nearby(self, x, y, grid):
-        if grid[y][x].top_num == -1:
+        print_grid(self.array)
+
+    def check_around(self, x, y):
+        val = -1
+        if self.array[y][x].top_num == -1:
             return -1
-        else:
-            val = 0
-            for tx, ty in ((0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)):
-                if in_grid(x + tx, y + ty, grid):
-                    if grid[y + ty][x + tx].top_num == -1:
-                        val += 1
-            return val
-
-
-global visited_points, array, process
-process = False
-
-
-def in_grid(x, y, grid):
-    return 0 <= x < len(grid[0]) and 0 <= y < len(grid)
-
-
-def auto_click(x, y, grid):
-    global process
-    process = False
-    q = [(x, y)]
-    while q:
         for tx, ty in ((0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)):
-            if in_grid(x + tx, y + ty, grid):
-                if grid[y + ty][x + tx].is_exposed():
-                    continue
-                else:
-                    # not exposed
-                    if grid[y + ty][x + tx].top_num > 0:
-                        grid[y + ty][x + tx].expose()
-
-                    elif grid[y + ty][x + tx].top_num == 0:
-                        grid[y + ty][x + tx].expose()
-                        q.append((x + tx, y + ty))
-    process = False
+            if 0 <= y + ty < self.y:
+                if 0 <= x + tx < self.x:
+                    if self.array[y + ty][x + tx].top_num == -1:
+                        val += 1
+        return val
 
 
-def play_minesweeper(x, y, num_bombs):
-    root = Tk()
-    GameBoard(root, x, y, num_bombs).mainloop()
+def print_grid(array):
+    for r in array:
+        for c in r:
+            c.expose()
 
 
-play_minesweeper(30, 20, 100)
+rt = Tk()
+board = GameBoard(rt, 20, 20, 50)
+board.mainloop()
+
