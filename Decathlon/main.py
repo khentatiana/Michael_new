@@ -1,10 +1,10 @@
-from games.meters_100 import *
-from games.meters_400 import *
-from games.meters_1500 import *
-from games.shot_put import *
-from games.discus import *
-from games.meters_100_hurdles import *
-from games.javelin import *
+from Decathlon.games.meters_100 import *
+from Decathlon.games.meters_400 import *
+from Decathlon.games.meters_1500 import *
+from Decathlon.games.shot_put import *
+from Decathlon.games.discus import *
+from Decathlon.games.meters_100_hurdles import *
+from Decathlon.games.javelin import *
 
 
 class InitiateGameFrame(Frame):

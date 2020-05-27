@@ -7,7 +7,7 @@ from Flask_API.services.cat_o_pedia import *
 app = Flask(__name__)
 
 
-@app.route('/')author
+@app.route('/')
 def main():
     return render_template('main.html')
 

@@ -1,6 +1,7 @@
 # we need three classes SudokuCell, SudokuBoard, and 3x3 square
 from tkinter import *
 from tkinter import filedialog
+from tkinter import messagebox
 
 
 class SudokuCell(Label):
@@ -176,7 +177,11 @@ class SudokuGrid(Frame):
                 self.units.append(SudokuUnit(box_cells))  # add box unit
         # main loop for the game
 
+        self.number_displayed = -1
+
+
     def update_cells(self):
+        player_won = True
         for coord in self.cells:
             cell = self.cells[coord]
             number = cell.get_number()
@@ -191,8 +196,14 @@ class SudokuGrid(Frame):
                         continue
                     if self.cells[other_coord].get_number() == number:
                         found_bad = True
+                    elif self.cells[other_coord].get_number() == 0:
+                        player_won = False
 
-            cell.update_display(found_bad)
+            if player_won and not found_bad and self.number_displayed == -1:
+                self.number_displayed = 0
+                messagebox.showinfo('Sudoku', 'Congratulations -- You have solved the sudoku puzzle!', parent=self)
+            else:
+                cell.update_display(found_bad)
 
     def un_highlight_all(self):
         for cell in self.cells:

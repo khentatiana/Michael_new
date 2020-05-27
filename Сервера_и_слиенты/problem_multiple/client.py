@@ -17,9 +17,8 @@ name = input('Введите ваше имя: ')
 client = Client('127.0.0.1', 9090, name)
 connection = client.connection
 
-threading.Thread(target=receive_broadcast, args=[connection])
-
 while True:
+    threading.Thread(target=receive_broadcast, args=[connection])
     message = input()
     if message == '!bye':
         send_string(connection, message)
