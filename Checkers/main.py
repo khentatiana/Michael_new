@@ -1,10 +1,9 @@
 from tkinter import *
-from numpy import sign
 
 
 class Tile(Canvas):
     def __init__(self, master, color, x, y, game):
-        """Makes a 60x60 tile with a background color of beige or green"""
+        """Makes a 60x60 tile with a background color of beige or brown"""
         Canvas.__init__(self, master, bg=color, width=60, height=60, highlightthickness=5)
         self.grid(row=x, column=y)
         self['highlightbackground'] = color
@@ -14,11 +13,8 @@ class Tile(Canvas):
         self.y = y
         self.color = color
 
-        # storing the GameBoard file
-        self.game = game
-
-        # binding a click to highlight a tile
-        self.bind('<Button-1>', self.start_move)
+        # binding keys
+        self.bind('<Button-1>', game.get_click)
 
     def draw_checker(self, color):
         """draws a circle with a color either red or white"""
@@ -49,52 +45,227 @@ class Tile(Canvas):
         """returns if there is a checker drawn on the tile or not"""
         return len(self.find_all()) == 1
 
-    def start_move(self, event):
-        """Completes a move for a checker"""
-        # if the tile is already highlighted we can unhighlight it by clicking it again
-        if self.is_highlighted():
-            # un highlight it
-            self.highlight()
+    def get_position(self):
+        """returns the location of our tile"""
+        return tuple([self.x, self.y])
+
+
+class PaperBoard:
+    """Stores locations of checker pieces and has a function that returns all possible legal moves for a checker of a
+    color"""
+    def __init__(self, grid=None):
+        """Creates a 2d array that store all of the checkers in the form of:
+         'W' -> white,
+         'B' -> black,
+         '_' -> blank
+         """
+
+        if grid:
+            # we were given a set grid (for debugging purposes and testing)
+            self.array = grid
         else:
-            # we need to check that no other tiles are highlighted
-            highlighted_tiles = self.game.complete_sweep()
+            self.array = {}
 
-            # looping through all of the tiles in the highlighted tiles
-            for tile in highlighted_tiles:
-                # either there is a highlighted tile or their isn't.
-                self.game.array[tile].highlight()
+            # we draw our checkers in their respective locations
+            for curr_range in [[range(0, 3), 'B'], [range(5, 8), 'W']]:
+                # creates pieces in relation to the current range
 
-            self.highlight()
+                for r in curr_range[0]:
+                    # We check if the row is even or odd if even we must 1, 3, 5, 7 as the column locations
+                    # of the checker pieces else if odd we have 0, 2, 4, 6 as the checker column locations
+                    if r % 2 == 1:
+                        # odd row
+                        is_odd = True
+                    else:
+                        # even row
+                        is_odd = False
 
-        # now that we have highlighted we need to check if the tile that has been highlighted has a checker
-        # or not. If it does then we start a turn else we move the checker to the piece if it is a legal move.
-        # need to check if there is a move in progress
-        if self.game.is_there_a_move_in_progress():
-            # if true we need to make sure that we don't have a checker on the tile in question
-            if not self.do_i_have_a_checker_on_my_back():
-                # if its true then we check if the move is legal
-                if self.game.is_legal([self.x, self.y]):
-                    # legal move therefore we draw a checker
-                    self.draw_checker(self.game.current_turn())
-                    self.game.array[self.game.loc].delete_checker()
-                    self.game.progress = False
-                    self.game.loc = (-1, -1)
+                    # we loop through the current row
+                    for c in range(8):
+                        if is_odd:
+                            # the row is odd
+                            if c % 2 == 0:
+                                # we place a checker
+                                self.array[(r, c)] = curr_range[1]
+                            else:
+                                # we set it as a blank space
+                                self.array[(r, c)] = '_'
+                        else:
+                            # the row is even
+                            if c % 2 == 1:
+                                # we place a checker
+                                self.array[(r, c)] = curr_range[1]
+                            else:
+                                # we set it as a blank space
+                                self.array[(r, c)] = '_'
+
+            # we fill the middle section with blank spaces
+            for r in range(3, 5):
+                # we loop through the current row
+                for c in range(8):
+                    self.array[(r, c)] = '_'
+
+    def create_flipped_grid(self):
+        """creates a flipped copy of self.array"""
+        # we create a new dict for our grid
+        new_grid = {}
+
+        # loop through all the rows backward
+        for r in range(7, -1, -1):
+            # loop through the current row normally
+            for c in range(8):
+                # add the checker to the location opposite of where it would be
+                new_grid[(7 - r, c)] = self.array[(r, c)]
+
+        # return the new_grid
+        return new_grid
+
+    def get_legal_moves(self, white=False):
+        """returns legal moves for black pieces (by default) unless otherwise specified. We do this because when moving
+        a black piece we add and moving a white piece we must subtract"""
+        # when searching for the checkers we need the color and we need to flip the grid depending on the color
+        if white:
+            new_array = self.create_flipped_grid()
+            search_color = 'W'
         else:
-            # We need to check if the we clicked a checker
-            if self.do_i_have_a_checker_on_my_back():
-                # start move
-                self.game.loc = (self.x, self.y)
-                self.game.progress = True
-            else:
-                self.game.display_label['text'] = 'NOT A LEGAL MOVE!'
+            new_array = self.array
+            search_color = 'B'
+
+        # we find the locations of all of the white and black pieces of the NEW array
+        white_locations = []
+        black_locations = []
+
+        # create an empty list that store all legal move in the form of [start location, end location]
+        legal_moves_for_color = []
+
+        # loop through all of the rows
+        for r in range(8):
+            # loop through the current row
+            for c in range(8):
+                if self.array[(r, c)] == 'B':
+                    # black checker
+                    black_locations.append((r, c))
+                elif self.array[(r, c)] == 'W':
+                    # white checker
+                    white_locations.append((r, c))
+                else:
+                    # we have a blank space therefore we just ignore it
+                    pass
+
+        if search_color == 'B':
+            # we must find every legal move for the black pieces
+            # the easiest way to do this would be to loop through every black piece location and add 1 if its a simple
+            # move or add 2 if its a jump over a white piece
+            for location in black_locations:
+                # we search every location of a black checkers and add 1 for a simple move or add 2 for a jump
+
+                # searching "simple moves"
+                for tx, ty, direction in ((1, 1, 'R'), (1, -1, 'L')):
+                    if self.legal_move(location, (location[0] + tx, location[1] + ty), new_array, search_color,
+                                       direction, jump=False):
+                        # the move is legal therefore we add it to our legal moves
+                        legal_moves_for_color.append([location, (location[0] + tx, location[1] + ty)])
+
+                # searching jumps
+                for tx, ty, direction in ((2, 2, 'R'), (2, -2, 'L')):
+                    if self.legal_move(location, (location[0] + tx, location[1] + ty), new_array, search_color,
+                                       direction, jump=True):
+                        # the move is legal therefore we add it to our legal moves
+                        legal_moves_for_color.append([location, (location[0] + tx, location[1] + ty)])
+        else:
+            # we must find every legal move for the white pieces
+            # this is pretty similar to finding black pieces just inverted locations since with white checkers we have
+            # to move uphill so to speak
+            for location in white_locations:
+                # we search every single white location and add jumps and steps. Since we are searching through all of
+                # the original positions from the original array we must reverse them during our search
+                flipped_location = (7 - location[0], location[1])
+
+                # searching "simple moves"
+                for tx, ty, direction in ((1, 1, 'R'), (1, -1, 'L')):
+                    if self.legal_move(flipped_location, (flipped_location[0] + tx, flipped_location[1] + ty),
+                                       new_array, search_color, direction, jump=False):
+                        # the move is legal therefore we add it to our legal moves
+                        legal_moves_for_color.append([location, (location[0] - tx, location[1] + ty)])
+
+                # searching jumps
+                for tx, ty, direction in ((2, 2, 'R'), (2, -2, 'L')):
+                    if self.legal_move(flipped_location, (flipped_location[0] + tx, flipped_location[1] + ty),
+                                       new_array, search_color, direction, jump=True):
+                        # the move is legal therefore we add it to our legal moves
+                        legal_moves_for_color.append([location, (location[0] - tx, location[1] + ty)])
+
+        return legal_moves_for_color
+
+    @staticmethod
+    def in_grid(location):
+        """returns if a given location is within the boundaries of the grid or not"""
+        return 0 <= location[0] < 8 and 0 <= location[1] < 8
+
+    def legal_move(self, start, end, grid, color, direction, jump=True):
+        """checks if a move is legal or not"""
+
+        legal = False
+        if self.in_grid(end):
+            if grid[end] == '_':
+                # the move is in the grid therefore we are safe to assume all actions are within the confines of our
+                # grid
+                if jump:
+                    # the move is a jump therefore we need to check if its jumping over a checker of the opposite color
+                    if color == 'B':
+                        # we need to check if we are jumping over a white color
+                        jump_color = 'W'
+                    else:
+                        # we need to check if we are jumping over a black color
+                        jump_color = 'B'
+
+                    # we need to know the direction so we can check if that we can check if there is a checker there
+                    if direction == 'L':
+                        # we check one unit lower and 1 unit left
+                        loc = (start[0] + 1, start[1] - 1)
+                    else:
+                        # we check one unit lower and 1 unit right
+                        loc = (start[0] + 1, start[1] + 1)
+
+                    # now that we have our color we must check if we are jumping over it
+                    if grid[loc] == jump_color:
+                        # jump is legal
+                        legal = True
+                    else:
+                        legal = False
+                else:
+                    # the move isn't a jump its a step. Since we already check that the end location is not a checker
+                    # the move must be legal because we also check that the location is inside the grid
+                    legal = True
+
+        return legal
+
+    def move_checker(self, start, finish, color):
+        """moves the location of the checker in our array checking the legality of the move etc..."""
+        if color == 'W':
+            legal_moves = self.get_legal_moves(True)
+        else:
+            legal_moves = self.get_legal_moves()
+
+        if [start, finish] in legal_moves:
+            print('The move is legal!')
+            # switch to the new location
+            self.array[start], self.array[finish] = '_', self.array[start]
+            return True
+        else:
+            print('The move is not legal')
+            return False
 
 
-class GameBoard(Frame):
+class GUIBoard(Frame):
     def __init__(self, master):
         """Creates a game board and positions checker pieces in their starting position"""
         # initiating a frame and snapping it to a grid
         Frame.__init__(self, master)
         self.grid()
+
+        # we crete the backend of our program
+        self.paper_board = PaperBoard()
 
         # we create our checkerboard
         colors = ['blanched almond', 'saddle brown']
@@ -148,55 +319,25 @@ class GameBoard(Frame):
         self.display_label = Label(master, text='Hello!', font=('Arial', 18, 'bold'))
         self.display_label.grid(row=8, column=5, columnspan=3)
 
+    def get_click(self, event):
+        """completes a move"""
+        tile = event.widget
+        location = tile.get_position()
+        print(location, self.paper_board.array[location])
+
+        # instead of tracking whether a move is in progress we can just check the number of tiles highlighted
+        if len(self.complete_sweep()) == 1:
+            # there is another highlighted tile therefore a move is already in progress meaning we must end
+            # the current move
+
+        else:
+            # we simply highlight the clicked tile
+            tile.highlight()
+
     def complete_sweep(self):
-        """checks how many checker pieces are highlighted"""
-        # number of tiles
-        number_of_tiles = []
-        for row in range(8):
-            for col in range(8):
-                if self.array[(row, col)].is_highlighted():
-                    number_of_tiles.append((row, col))
-
-        return number_of_tiles
-
-    def current_turn(self):
-        """returns the person whose turn it is currently"""
-        return ['white', 'gray10'][self.current]
-
-    def is_there_a_move_in_progress(self):
-        """returns if there is a turn in progress or not"""
-        return self.progress
-
-    def is_legal(self, loc2):
-        """checks if the move is legal or not"""
-        for tx, ty in ((-1, -1), (-1, 1)):
-            # checking if you move forward (not jumping)
-            if [self.loc[0] + tx, self.loc[1] + ty] == loc2:
-                # we already check if there is a checker in this location therefore we don't have to check it here
-                return True
-            # if not we continue
-
-        # say that the person was not moving forward but he wanted to jump
-        for tx, ty in ((-2, -2), (-2, 2)):
-            # we check if the jump is inside the grid boundaries
-            if 0 <= self.loc[0] + tx < 8 and 0 <= self.loc[1] + ty < 8:
-                # the jump is inside the grid
-                if [self.loc[0] + tx, self.loc[1] + ty] == loc2:
-                    # we need to check the value before it if there is a checker there or not
-                    if self.array[(self.loc[0] + (tx + sign(tx) * (-1)), self.loc[1] + 1)].\
-                            do_i_have_a_checker_on_my_back():
-                        # there is a checker
-                        return True
-
-        # no returns therefore we return False meaning that his move isn't legal
-        return False
+        """returns the locations of all highlighted checkers"""
 
 
-def play_checkers():
-    rt = Tk()
-    rt.title('Checkers')
-    GameBoard(rt)
-    rt.mainloop()
-
-
-play_checkers()
+root = Tk()
+GUIBoard(root)
+root.mainloop()

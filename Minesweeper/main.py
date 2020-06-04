@@ -27,6 +27,7 @@ class Tile(Label):
         # we bind keys for clicking on the tile
         self.bind('<Button-1>', self.expose)
         self.bind('<Button-2>', self.flag)
+        self.bind('<Button-3>', self.flag)
 
     def is_exploded(self):
         """Returns if the tile has been exploded"""
@@ -336,7 +337,8 @@ rights!
 
     def reset(self):
         """reset the game"""
-        play_minesweeper(self.rows, self.cols, self.num_bombs)
+        self.master.destroy()
+        play_minesweeper(self.cols, self.rows, self.num_bombs)
 
 
 def play_minesweeper(rows, cols, num_bombs):
