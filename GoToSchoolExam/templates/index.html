@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Rot Converter</title>
+        <link rel="stylesheet" href="../static/style.css" type="text/css">
+    </head>
+    <body>
+        <div class="container">
+            <form>
+                <label id="heading" for="rot">Convert from English to lots of ciphers!</label>
+                <br>
+                <label id="heading1" for="rot">Convert to: </label>
+                <select id = "rot" name="rot-level">
+                    <option value = "0"></option>
+                    <option value = "1">ROT1</option>
+                    <option value = "2">ROT2</option>
+                    <option value = "3">ROT3</option>
+                    <option value = "4">ROT4</option>
+                    <option value = "5">ROT5</option>
+                    <option value = "6">ROT6</option>
+                    <option value = "7">ROT7</option>
+                    <option value = "8">ROT8</option>
+                    <option value = "9">ROT9</option>
+                    <option value = "10">ROT10</option>
+                    <option value = "11">ROT11</option>
+                    <option value = "12">ROT12</option>
+                    <option value = "13">ROT13</option>
+                    <option value = "14">ROT14</option>
+                    <option value = "15">ROT15</option>
+                    <option value = "16">ROT16</option>
+                    <option value = "17">ROT17</option>
+                    <option value = "18">ROT18</option>
+                    <option value = "19">ROT19</option>
+                    <option value = "20">ROT20</option>
+                    <option value = "21">ROT21</option>
+                    <option value = "22">ROT22</option>
+                    <option value = "23">ROT23</option>
+                    <option value = "24">ROT24</option>
+                    <option value = "25">ROT25</option>
+                    <option value = "26">PIGLATIN</option>
+                </select>
+            </form>
+        </div>
+
+
+        <div class="container2">
+            <label for="input">INPUT:</label>
+            <textarea id="input" cols="80" rows="12" placeholder="Enter you text here!" name="text1"></textarea>
+            <button type="submit" onclick="logData()"><strong>CONVERT</strong></button>
+            <label for="output">OUTPUT:</label>
+            <textarea id="output" cols="80" rows="12" placeholder="The translation is here!" readonly></textarea>
+            <button id="copy">COPY</button>
+        </div>
+    </body>
+
+    <script type="text/javascript">
+        async function httpGetAsync(theUrl) {
+            let information = {};
+            information['cipher'] = document.getElementById('rot').value;
+            information['txt'] = document.getElementById('input').value;
+
+            information = JSON.stringify(information);
+            console.log(information);
+
+            let k = await fetch(theUrl, {
+                method: "POST",
+                headers: { 'Content-Type' : 'application/json' },
+                body: JSON.stringify(information)
+            });
+
+
+            return k.json();
+
+            // let t = await response.json();
+        }
+
+        function logData() {
+            httpGetAsync('http://127.0.0.1:5000/cipher').then(data => {
+                console.log(data);
+
+                document.getElementById("output").textContent = data["text"];
+            });
+
+        }
+
+        const copyButton = document.getElementById('copy');
+        copyButton.addEventListener('click', function () {
+            alert('Copied text.');
+            document.getElementById('output').select();
+            document.execCommand('copy');
+        });
+    </script>
+<!--    <script type="text/javascript">-->
+<!--		function rot(s, i) {-->
+<!--		    if (i === 0) {-->
+<!--		        return "";-->
+<!--            }-->
+<!--			return s.replace(/[a-zA-Z]/g, function (c) {-->
+<!--				return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + i) ? c : c - 26);-->
+<!--			});-->
+<!--		}-->
+<!--		function update() {-->
+<!--			document.getElementById('output').value = rot(document.getElementById('input').value, +document.getElementById('rot').value);-->
+<!--		}-->
+<!--	</script>-->
+</html>

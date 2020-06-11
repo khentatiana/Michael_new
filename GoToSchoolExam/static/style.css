@@ -1,0 +1,113 @@
+body {
+    background: gray;
+    color: whitesmoke;
+    margin: auto;
+    height: 100%;
+    width: 100%;
+    display: block;
+    align-items: center;
+}
+
+.container {
+    border: black;
+    display: block;
+    text-align: center;
+    margin: auto;
+    padding: 20px;
+    width: 100%;
+    user-select: none;
+}
+
+#rot {
+    outline: none;
+    box-shadow: none;
+}
+
+#heading {
+    font-size: 40px;
+    font-family: 'monospace', 'Ubuntu', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+    text-shadow: black 5px 0 20px;
+}
+
+#heading1 {
+    font-size: 20px;
+}
+
+.container2 {
+    display: flex;
+    flex-flow: row wrap;
+    flex-direction: column;
+    align-items: stretch;
+    margin: auto;
+    width: 80%;
+    user-select: none;
+    background-size: contain;
+}
+
+.container2 label {
+    margin: 5px 10px 5px 0;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.container2 textarea {
+    vertical-align: middle;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    height: 400px;
+    user-select: none;
+    outline: none;
+    overflow-y: scroll;
+}
+
+textarea {
+    overflow: hidden;
+    resize: none;
+}
+
+.container2 button {
+    padding: 10px 20px;
+    background-color: dodgerblue;
+    border: 1px solid #ddd;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    outline:none;
+    animation-duration: 2s;
+    font-size: 20px;
+    font-family: "monospace";
+}
+
+.container2 button:hover {
+    animation: the-fade-in;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+
+
+@keyframes the-fade-in {
+    100% {
+        background: royalblue;
+    }
+}
+
+@keyframes the-fade-out {
+    100% {
+        background: dodgerblue;
+    }
+}
+
+#copy {
+    top: -10px;
+    background-color: dodgerblue;
+    align-self: flex-end;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    font-size: 20px;
+    font-family: "monospace";
+    width: 20%;
+}

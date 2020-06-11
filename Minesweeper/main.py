@@ -352,3 +352,6 @@ def play_minesweeper(rows, cols, num_bombs):
 
 rows, cols, num_bombs = list(map(int, input('Enter the number of rows, columns, and the number of bombs: ').split()))
 play_minesweeper(rows, cols, num_bombs)
+
+# My attempt at making a minesweeper game (I don't have a git)
+# https://paste.pythondiscord.com/dixotewosu.py

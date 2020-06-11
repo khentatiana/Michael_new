@@ -105,6 +105,16 @@ class PaperBoard:
                 for c in range(8):
                     self.array[(r, c)] = '_'
 
+        self.c_t = 0
+
+    def current_turn(self):
+        """returns the color of the persons turn"""
+        return ['W', 'B'][self.c_t]
+
+    def switch_turn(self):
+        """switches the current turn to black if white and visa versa"""
+        self.c_t = (self.c_t + 1) % 2
+
     def create_flipped_grid(self):
         """creates a flipped copy of self.array"""
         # we create a new dict for our grid
@@ -123,6 +133,7 @@ class PaperBoard:
     def get_legal_moves(self, white=False):
         """returns legal moves for black pieces (by default) unless otherwise specified. We do this because when moving
         a black piece we add and moving a white piece we must subtract"""
+
         # when searching for the checkers we need the color and we need to flip the grid depending on the color
         if white:
             new_array = self.create_flipped_grid()
@@ -204,7 +215,6 @@ class PaperBoard:
 
     def legal_move(self, start, end, grid, color, direction, jump=True):
         """checks if a move is legal or not"""
-
         legal = False
         if self.in_grid(end):
             if grid[end] == '_':
@@ -238,6 +248,10 @@ class PaperBoard:
                     # the move must be legal because we also check that the location is inside the grid
                     legal = True
 
+        # to start we need to check if the move color even is the current turn
+        if color != self.current_turn():
+            # white is trying to move when black's turn or visa versa
+            legal = False
         return legal
 
     def move_checker(self, start, finish, color):
@@ -255,6 +269,10 @@ class PaperBoard:
         else:
             print('The move is not legal')
             return False
+
+    def remove(self, loc):
+        """removes and eaten piece(doesn't check if there is a piece or not it is assumed that this move is legal)"""
+        self.array[loc] = '_'
 
 
 class GUIBoard(Frame):
@@ -309,35 +327,101 @@ class GUIBoard(Frame):
         turn_label.grid(row=8, column=1)
 
         # the tile that indicates the turn
-        bottom_tile = Tile(master, 'light gray', 8, 2, self)
-        bottom_tile.draw_checker('white')
+        self.bottom_tile = Tile(master, 'light gray', 8, 2, self)
+        self.bottom_tile.draw_checker('white')
         self.current = 0
         self.loc = (-1, -1)
         self.progress = False
 
         # label showing if you need to jump, continue jump, or not a legal move
-        self.display_label = Label(master, text='Hello!', font=('Arial', 18, 'bold'))
+        self.display_label = Label(master, text='', font=('Arial', 18, 'bold'))
         self.display_label.grid(row=8, column=5, columnspan=3)
 
     def get_click(self, event):
         """completes a move"""
         tile = event.widget
         location = tile.get_position()
-        print(location, self.paper_board.array[location])
+        color = self.paper_board.array[location]
+        print(location, color)
 
         # instead of tracking whether a move is in progress we can just check the number of tiles highlighted
-        if len(self.complete_sweep()) == 1:
+        if len(self.complete_sweep()) > 0:
             # there is another highlighted tile therefore a move is already in progress meaning we must end
             # the current move
 
+            self.display_label['text'] = ''
+
+            colors = {
+                'W': 'white',
+                'B': 'black'
+            }
+            new_loc = self.complete_sweep()[0]
+
+            # we get the color of the clicked checker in question and then check if the move is legal
+            # if the move is legal the paper board will have moved the checker and will return True
+            color1 = self.paper_board.array[new_loc]
+            is_move_legal = self.paper_board.move_checker(new_loc, location, color1)
+
+            if is_move_legal:
+                # The move is legal therefore we redraw the checker in a new location
+                self.array[location].draw_checker(colors[color1])
+                self.array[new_loc].delete_checker()
+                self.paper_board.switch_turn()
+                self.bottom_tile.draw_checker(colors[self.paper_board.current_turn()])
+
+                values = self.is_jump(new_loc, location, color1)
+                if values[0]:
+                    # it was a jump therefore we need to remove the checker we have jumped over
+                    self.array[values[1]].delete_checker()
+                    self.paper_board.remove(values[1])
+
+            else:
+                self.display_label['text'] = 'NOT A LEGAL MOVE'
+
+            self.array[new_loc].highlight()
         else:
             # we simply highlight the clicked tile
             tile.highlight()
 
+    @staticmethod
+    def is_jump(start, end, color):
+        """Returns whether if the move is a jump or not (assuming it is legal)"""
+        if color == 'B':
+            # move was black therefore we have to add 2 instead of subtract when moving
+            if start[0] + 2 == end[0]:
+                # we return true and it is a jump
+                if start[1] + 2 == end[1]:
+                    loc = (start[0] + 1, start[1] + 1)
+                else:
+                    loc = (start[0] + 1, start[1] - 1)
+                return [True, loc]
+            return [False, None]
+        else:
+            # move was white therefore we have to subtract 2 instead of adding when moving
+            if start[0] - 2 == end[0]:
+                # we return true and it is a jump and the location of the tile that was eaten
+                if start[1] + 2 == end[1]:
+                    loc = (start[0] - 1, start[1] + 1)
+                else:
+                    loc = (start[0] - 1, start[1] - 1)
+                return [True, loc]
+            return [False, None]
+
     def complete_sweep(self):
         """returns the locations of all highlighted checkers"""
 
+        highlighted = []
+        # loop through all rows
+        for r in range(8):
+            # loop through every unit in the row
+            for c in range(8):
+                if self.array[(r, c)].is_highlighted():
+                    highlighted.append((r, c))
+
+        return highlighted
+
 
 root = Tk()
+root.title('checkers')
 GUIBoard(root)
 root.mainloop()
