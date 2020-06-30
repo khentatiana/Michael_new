@@ -7,5 +7,17 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Flask_API/services/catopedia.sqlite</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="db.sqlite" uuid="b2ee4a9b-5d3b-47c7-a7f1-063053dbc5d0">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/agarOnPython/app/users</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="text.sqlite" uuid="01df56e5-6549-4dc4-b253-3474a9f4b6ad">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/GoToSchoolExam/texts.sqlite</jdbc-url>
+    </data-source>
   </component>
 </project>

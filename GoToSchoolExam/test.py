@@ -1,7 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 import json
+import sqlite3
 
 app = Flask(__name__)
+co = sqlite3.connect('texts.sqlite')
+cu = co.cursor()
+cu.execute("DELETE FROM information")
+co.commit()
 
 
 @app.route('/')
@@ -24,6 +29,14 @@ def calculate():
         new_text = ""
     else:
         new_text = functions[t](information['txt'], int(information['cipher']))
+
+    connection = sqlite3.connect('texts.sqlite')
+    cursor = connection.cursor()
+
+    listing = [int(information['cipher']), information['txt'], new_text]
+    cursor.execute("INSERT INTO information (cipher, inp, outp) VALUES (?, ?, ?)", listing)
+    cursor.execute("")
+    connection.commit()
 
     print("INPUT text:" + information['txt'])
     print("CIPHER type:" + information['cipher'])

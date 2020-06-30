@@ -1,0 +1,16 @@
+Cleese 80
+Gilliam 78
+Jones 69
+Jones 90
+Cleese 90
+Chapman 90
+Chapman 100
+Palin 80
+Gilliam 82
+Cleese 85
+Gilliam 80
+Gilliam 75
+Idle 91
+Jones 90
+Palin 90
+Cleese 88
