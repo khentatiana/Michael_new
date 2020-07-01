@@ -1,4 +1,5 @@
 import os
+from random_word.random_word import RandomWords
 
 
 # reversing a dictionary
@@ -109,12 +110,20 @@ def translate():
     else:
         print('DICTIONARY file does not exist')
         print("---- Don't worry ----")
-        print("I created one for you!")
+        random_title = RandomWords().get_random_word()
+
+        print("I created one for you! Its called {}.txt".format(random_title))
 
     if os.path.isfile('{}/USACO/{}'.format(content_path, text_file_name)):
         print('INPUT file exists')
     else:
         print('INPUT file does not exist')
+        print("---- Don't worry ----")
+        random_title = RandomWords().get_random_word()
+
+        print("I created one for you! Its called {}.txt".format(random_title))
+
+
 
 
 translate()
